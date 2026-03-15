@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barril Kong</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a0a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Courier New', monospace;
+    }
+    h1 {
+      color: #ff6b00;
+      font-size: 2rem;
+      text-shadow: 0 0 20px #ff6b00;
+      margin-bottom: 10px;
+      letter-spacing: 4px;
+    }
+    #scoreBoard {
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 30px;
+    }
+    #scoreBoard span { color: #ffdd00; }
+    canvas {
+      border: 3px solid #ff6b00;
+      box-shadow: 0 0 30px #ff6b0055;
+      background: #0d0520;
+    }
+    #controls {
+      color: #aaa;
+      font-size: 0.8rem;
+      margin-top: 10px;
+      text-align: center;
+    }
+    #overlay {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      pointer-events: none;
+    }
+    #overlay h2 { color: #ff6b00; font-size: 2rem; text-shadow: 0 0 20px #ff6b00; }
+    #overlay p { color: #fff; font-size: 1rem; }
+    button {
+      background: #ff6b00;
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      font-size: 1rem;
+      font-family: 'Courier New', monospace;
+      cursor: pointer;
+      border-radius: 4px;
+      letter-spacing: 2px;
+      pointer-events: all;
+      transition: background 0.2s;
+    }
+    button:hover { background: #ff9000; }
+  </style>
+</head>
+<body>
+  <h1>🦍 BARRIL KONG</h1>
+  <div id="scoreBoard">
+    PUNTOS: <span id="score">0</span> &nbsp; MEJOR: <span id="best">0</span> &nbsp; NIVEL: <span id="level">1</span>
+  </div>
+  <div style="position:relative">
+    <canvas id="game" width="600" height="450"></canvas>
+    <div id="overlay">
+      <h2 id="overlayTitle">BARRIL KONG</h2>
+      <p id="overlayMsg">Esquiva los barriles y sube la escalera</p>
+      <button id="startBtn" onclick="startGame()">▶ JUGAR</button>
+    </div>
+  </div>
+  <div id="controls">
+    ← → Mover &nbsp;|&nbsp; ↑ / ESPACIO Saltar &nbsp;|&nbsp; [Móvil: toca los botones]
+  </div>
+
+  <!-- Mobile controls -->
+  <div style="display:flex;gap:20px;margin-top:12px">
+    <button ontouchstart="keys.left=true" ontouchend="keys.left=false"
+            onmousedown="keys.left=true" onmouseup="keys.left=false">◀</button>
+    <button ontouchstart="doJump()" onmousedown="doJump()">⬆ SALTAR</button>
+    <button ontouchstart="keys.right=true" ontouchend="keys.right=false"
+            onmousedown="keys.right=true" onmouseup="keys.right=false">▶</button>
+  </div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+const overlay = document.getElementById('overlay');
+const overlayTitle = document.getElementById('overlayTitle');
+const overlayMsg = document.getElementById('overlayMsg');
+const startBtn = document.getElementById('startBtn');
+
+let score = 0, best = 0, level = 1;
+let gameRunning = false, animId;
+
+// ── PLATFORMS ─────────────────────────────────────────────────────────────────
+// Each platform: { x, y, w, dir } dir = 1 (barrel rolls right→left=fall left) or -1
+const PLATFORMS = [
+  { x: 0,   y: 420, w: 600, dir:  1 },   // ground
+  { x: 80,  y: 330, w: 470, dir: -1 },
+  { x: 0,   y: 240, w: 470, dir:  1 },
+  { x: 80,  y: 150, w: 470, dir: -1 },
+  { x: 0,   y: 70,  w: 300, dir:  1 },   // top (goal)
+];
+
+// Ladders connect platforms
+const LADDERS = [
+  { x: 70,  y: 330, h: 90  },
+  { x: 500, y: 240, h: 90  },
+  { x: 70,  y: 150, h: 90  },
+  { x: 500, y: 70,  h: 80  },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let player, barrels, particles, barrelsSpawned, spawnTimer, levelTimer;
+
+function initState() {
+  player = {
+    x: 50, y: 390,
+    vx: 0, vy: 0,
+    w: 24, h: 32,
+    onGround: false,
+    climbing: false,
+    frame: 0, frameTick: 0,
+    dead: false,
+    invincible: 0,
+  };
+  barrels = [];
+  particles = [];
+  barrelsSpawned = 0;
+  spawnTimer = 0;
+  levelTimer = 0;
+  score = 0;
+  level = 1;
+  updateHUD();
+}
+
+// ── KEYS ──────────────────────────────────────────────────────────────────────
+const keys = {};
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ((e.key === ' ' || e.key === 'ArrowUp') && gameRunning) { e.preventDefault(); doJump(); }
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+function doJump() {
+  if (!gameRunning) return;
+  if (player.climbing) {
+    player.climbing = false;
+    player.vy = -10;
+  } else if (player.onGround) {
+    player.vy = -11;
+    player.onGround = false;
+  }
+}
+
+// ── GAME FLOW ──────────────────────────────────────────────────────────────────
+function startGame() {
+  overlay.style.display = 'none';
+  initState();
+  gameRunning = true;
+  if (animId) cancelAnimationFrame(animId);
+  loop();
+}
+
+function gameOver() {
+  gameRunning = false;
+  if (score > best) { best = score; document.getElementById('best').textContent = best; }
+  overlayTitle.textContent = '💀 GAME OVER';
+  overlayMsg.textContent = `Puntos: ${score}`;
+  startBtn.textContent = '↺ REINTENTAR';
+  overlay.style.display = 'flex';
+}
+
+function winLevel() {
+  level++;
+  score += 500;
+  updateHUD();
+  // Re-init barrels with higher speed
+  barrels = [];
+  spawnTimer = 0;
+  player.x = 50; player.y = 390;
+  player.vx = 0; player.vy = 0;
+  spawnParticles(130, 65, '#ffdd00', 30);
+}
+
+// ── BARREL SPAWNER ─────────────────────────────────────────────────────────────
+function spawnBarrel() {
+  const speed = 1.8 + level * 0.5;
+  barrels.push({
+    x: 30, y: 40,
+    vx: speed, vy: 0,
+    w: 20, h: 20,
+    platIdx: 4,  // starts on top platform
+    frame: 0, tick: 0,
+    roll: 0,
+  });
+  barrelsSpawned++;
+}
+
+// ── PHYSICS ────────────────────────────────────────────────────────────────────
+const GRAVITY = 0.55;
+
+function getPlatformAt(x, y, w) {
+  for (let i = PLATFORMS.length - 1; i >= 0; i--) {
+    const p = PLATFORMS[i];
+    if (x + w > p.x && x < p.x + p.w && Math.abs(y - p.y) < 8) return p;
+  }
+  return null;
+}
+
+function updatePlayer() {
+  if (player.dead) return;
+  const spd = 3.2;
+
+  // Horizontal
+  if (!player.climbing) {
+    if (keys['ArrowLeft'] || keys['a']) player.vx = -spd;
+    else if (keys['ArrowRight'] || keys['d']) player.vx = spd;
+    else player.vx = 0;
+  } else {
+    player.vx = 0;
+    if (keys['ArrowUp'] || keys['w']) player.vy = -2.5;
+    else if (keys['ArrowDown'] || keys['s']) player.vy = 2.5;
+    else player.vy = 0;
+  }
+
+  // Check ladder entry
+  if (!player.climbing) {
+    for (const l of LADDERS) {
+      if (player.x + player.w > l.x && player.x < l.x + 14 &&
+          player.y + player.h > l.y && player.y < l.y + l.h) {
+        if (keys['ArrowUp'] || keys['w']) { player.climbing = true; break; }
+        if (keys['ArrowDown'] || keys['s']) { player.climbing = true; break; }
+      }
+    }
+  }
+
+  if (!player.climbing) {
+    player.vy += GRAVITY;
+    player.x += player.vx;
+    player.y += player.vy;
+
+    // Clamp horizontal
+    player.x = Math.max(0, Math.min(W - player.w, player.x));
+
+    // Platform collision (falling down)
+    player.onGround = false;
+    const plat = getPlatformAt(player.x + player.w / 2, player.y + player.h, player.w);
+    if (plat && player.vy >= 0) {
+      player.y = plat.y - player.h;
+      player.vy = 0;
+      player.onGround = true;
+    }
+
+    // Fall off bottom
+    if (player.y > H + 10) { player.dead = true; setTimeout(gameOver, 600); return; }
+  } else {
+    player.x += player.vx;
+    player.y += player.vy;
+    // Exit ladder at top or bottom
+    let onLadder = false;
+    for (const l of LADDERS) {
+      if (player.x + player.w > l.x && player.x < l.x + 14 &&
+          player.y + player.h > l.y && player.y < l.y + l.h) { onLadder = true; break; }
+    }
+    if (!onLadder) { player.climbing = false; player.vy = 0; }
+    player.x = Math.max(0, Math.min(W - player.w, player.x));
+    player.y = Math.max(0, player.y);
+  }
+
+  // Animation frame
+  player.frameTick++;
+  if (player.frameTick > 8) { player.frameTick = 0; player.frame = (player.frame + 1) % 4; }
+
+  // Invincibility frames
+  if (player.invincible > 0) player.invincible--;
+
+  // Goal: reach top platform (y < 80)
+  if (player.y < 60) winLevel();
+}
+
+function updateBarrels() {
+  const speed = 1.8 + level * 0.5;
+  for (let i = barrels.length - 1; i >= 0; i--) {
+    const b = barrels[i];
+    b.vy += GRAVITY;
+    b.x += b.vx * PLATFORMS[b.platIdx].dir;
+    b.y += b.vy;
+    b.roll += b.vx * PLATFORMS[b.platIdx].dir * 5;
+
+    // Land on platform below
+    for (let pi = 0; pi < PLATFORMS.length; pi++) {
+      const p = PLATFORMS[pi];
+      if (b.x + b.w > p.x && b.x < p.x + p.w &&
+          b.y + b.h >= p.y && b.y + b.h < p.y + 14 && b.vy >= 0) {
+        b.y = p.y - b.h;
+        b.vy = 0;
+        b.platIdx = pi;
+        b.vx = speed;
+        break;
+      }
+    }
+
+    // Roll off edge → small bounce
+    const curPlat = PLATFORMS[b.platIdx];
+    const atEdge = (PLATFORMS[b.platIdx].dir === 1 && b.x > curPlat.x + curPlat.w) ||
+                   (PLATFORMS[b.platIdx].dir === -1 && b.x + b.w < curPlat.x);
+    if (atEdge && b.vy === 0) b.vy = 2; // start falling
+
+    // Out of screen
+    if (b.y > H + 30) {
+      barrels.splice(i, 1);
+      score += 10;
+      updateHUD();
+      continue;
+    }
+
+    // Hit player
+    if (!player.dead && player.invincible === 0 &&
+        b.x < player.x + player.w && b.x + b.w > player.x &&
+        b.y < player.y + player.h && b.y + b.h > player.y) {
+      spawnParticles(player.x + player.w / 2, player.y + player.h / 2, '#ff4444', 20);
+      player.dead = true;
+      setTimeout(gameOver, 700);
+    }
+  }
+}
+
+// ── PARTICLES ─────────────────────────────────────────────────────────────────
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 4 + 1;
+    particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 2,
+      life: 1, color, size: Math.random() * 5 + 2 });
+  }
+}
+
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.03;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+}
+
+// ── DRAWING ────────────────────────────────────────────────────────────────────
+function drawPlatforms() {
+  for (const p of PLATFORMS) {
+    // Main plank
+    ctx.fillStyle = '#5c3a1e';
+    ctx.fillRect(p.x, p.y, p.w, 12);
+    // Top highlight
+    ctx.fillStyle = '#8b5e3c';
+    ctx.fillRect(p.x, p.y, p.w, 3);
+    // Girder bolts
+    ctx.fillStyle = '#3a2210';
+    for (let bx = p.x + 20; bx < p.x + p.w - 10; bx += 40) {
+      ctx.beginPath(); ctx.arc(bx, p.y + 6, 3, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+}
+
+function drawLadders() {
+  for (const l of LADDERS) {
+    ctx.strokeStyle = '#ffaa44';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(l.x + 2, l.y); ctx.lineTo(l.x + 2, l.y + l.h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(l.x + 12, l.y); ctx.lineTo(l.x + 12, l.y + l.h); ctx.stroke();
+    ctx.lineWidth = 2;
+    for (let ry = l.y + 8; ry < l.y + l.h; ry += 12) {
+      ctx.beginPath(); ctx.moveTo(l.x + 2, ry); ctx.lineTo(l.x + 12, ry); ctx.stroke();
+    }
+  }
+}
+
+function drawDK() {
+  const x = 10, y = PLATFORMS[4].y - 52;
+  // Body
+  ctx.fillStyle = '#8b4513';
+  ctx.beginPath(); ctx.ellipse(x + 20, y + 25, 18, 22, 0, 0, Math.PI * 2); ctx.fill();
+  // Head
+  ctx.fillStyle = '#6b3410';
+  ctx.beginPath(); ctx.ellipse(x + 22, y + 7, 14, 12, -0.2, 0, Math.PI * 2); ctx.fill();
+  // Face
+  ctx.fillStyle = '#d2a679';
+  ctx.beginPath(); ctx.ellipse(x + 24, y + 9, 8, 7, 0, 0, Math.PI * 2); ctx.fill();
+  // Eyes
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(x + 20, y + 7, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + 28, y + 7, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(x + 21, y + 7, 1.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + 29, y + 7, 1.5, 0, Math.PI * 2); ctx.fill();
+  // Barrel he's holding
+  drawBarrelShape(x + 35, y + 15, 16, 16, 0);
+}
+
+function drawBarrelShape(x, y, w, h, roll) {
+  ctx.save();
+  ctx.translate(x + w / 2, y + h / 2);
+  ctx.rotate(roll * Math.PI / 180);
+  // Body
+  ctx.fillStyle = '#8b4513';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.fill();
+  // Bands
+  ctx.strokeStyle = '#5c2d0a'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(0, 0, w / 2, h / 2, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-w / 2, 0); ctx.lineTo(w / 2, 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, -h / 2); ctx.lineTo(0, h / 2); ctx.stroke();
+  ctx.restore();
+}
+
+function drawPlayer() {
+  const p = player;
+  const flash = p.invincible > 0 && Math.floor(p.invincible / 3) % 2 === 0;
+  if (flash) return;
+
+  ctx.save();
+  ctx.translate(p.x + p.w / 2, p.y + p.h);
+
+  // Legs
+  const legSwing = Math.sin(p.frame * Math.PI / 2) * 6;
+  ctx.fillStyle = '#1a6aff';
+  ctx.fillRect(-9, -14 + legSwing, 8, 14);
+  ctx.fillRect(1, -14 - legSwing, 8, 14);
+
+  // Body
+  ctx.fillStyle = '#cc0000';
+  ctx.fillRect(-10, -30, 20, 18);
+
+  // Arms
+  const armSwing = Math.sin(p.frame * Math.PI / 2) * 8;
+  ctx.fillStyle = '#f5c5a3';
+  ctx.fillRect(-16, -30 + armSwing, 7, 10);
+  ctx.fillRect(9, -30 - armSwing, 7, 10);
+
+  // Head
+  ctx.fillStyle = '#f5c5a3';
+  ctx.beginPath(); ctx.ellipse(0, -34, 10, 10, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Hat
+  ctx.fillStyle = '#cc0000';
+  ctx.fillRect(-11, -44, 22, 6);
+  ctx.fillRect(-7, -52, 14, 10);
+
+  // Eyes
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(-4, -36, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(4, -36, 2, 0, Math.PI * 2); ctx.fill();
+
+  ctx.restore();
+}
+
+function drawParticles() {
+  for (const p of particles) {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawGoal() {
+  // Star / flag at the top
+  const tx = PLATFORMS[4].x + PLATFORMS[4].w - 30;
+  const ty = PLATFORMS[4].y - 30;
+  ctx.fillStyle = '#ffdd00';
+  ctx.font = '24px serif';
+  ctx.fillText('⭐', tx, ty);
+}
+
+function drawBackground() {
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(255,107,0,0.05)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+}
+
+function updateHUD() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('best').textContent = best;
+  document.getElementById('level').textContent = level;
+}
+
+// ── MAIN LOOP ──────────────────────────────────────────────────────────────────
+let lastTime = 0;
+function loop(ts = 0) {
+  animId = requestAnimationFrame(loop);
+  if (!gameRunning) return;
+
+  ctx.clearRect(0, 0, W, H);
+  drawBackground();
+  drawPlatforms();
+  drawLadders();
+  drawGoal();
+  drawDK();
+
+  // Spawn barrels
+  spawnTimer++;
+  const interval = Math.max(80, 160 - level * 20);
+  if (spawnTimer >= interval) { spawnTimer = 0; spawnBarrel(); }
+
+  updateBarrels();
+  updatePlayer();
+  updateParticles();
+
+  // Draw barrels
+  for (const b of barrels) drawBarrelShape(b.x, b.y, b.w, b.h, b.roll);
+
+  drawPlayer();
+  drawParticles();
+
+  // Score over time
+  if (++levelTimer % 60 === 0) { score++; updateHUD(); }
+}
+
+// Start idle render
+(function idleLoop() {
+  if (gameRunning) return;
+  requestAnimationFrame(idleLoop);
+  ctx.clearRect(0, 0, W, H);
+  drawBackground();
+  drawPlatforms();
+  drawLadders();
+  drawGoal();
+  drawDK();
+})();
+</script>
+</body>
+</html>

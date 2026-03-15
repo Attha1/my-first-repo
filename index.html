@@ -285,6 +285,53 @@
     }
     .submit-btn:active { transform: translateY(0) scale(0.99); }
 
+    /* ── GAMES SECTION ── */
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      letter-spacing: 0.2em;
+      text-align: center;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, #ffd700, #ff6b00, #ffd700);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+    .games-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 60px;
+    }
+    .game-card {
+      background: linear-gradient(145deg, rgba(20,10,40,0.95), rgba(10,5,25,0.98));
+      border: 1px solid rgba(255,107,0,0.4);
+      border-radius: 16px;
+      padding: 24px 28px;
+      width: 220px;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      box-shadow: 0 0 20px rgba(255,107,0,0.1);
+    }
+    .game-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      border-color: rgba(255,107,0,0.9);
+      box-shadow: 0 0 40px rgba(255,107,0,0.4), 0 0 80px rgba(255,107,0,0.15);
+    }
+    .game-card .game-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+    .game-card .game-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      color: #ff9000;
+    }
+    .game-card .game-desc { font-size: 0.75rem; color: #aaa; margin-top: 6px; }
+
     /* ── FOOTER ── */
     footer {
       position: relative;
@@ -344,6 +391,16 @@
   <p class="tagline">
     The most awesome people<br>will put their information below.
   </p>
+
+  <!-- Games -->
+  <p class="section-title">🎮 JUEGOS</p>
+  <div class="games-grid">
+    <a href="donkeykong.html" class="game-card">
+      <span class="game-icon">🦍</span>
+      <div class="game-name">BARRIL KONG</div>
+      <div class="game-desc">Salta y esquiva barriles</div>
+    </a>
+  </div>
 
   <!-- Form -->
   <div class="card">
