@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Costura & Creaciones</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:   #fdf6ee;
+      --gold:    #c8922a;
+      --deep:    #2c1a0e;
+      --mauve:   #8b4f6e;
+      --rose:    #e8a0b4;
+      --thread:  #d4a853;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--deep);
+      font-family: 'Lato', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ──────────────── NAV ──────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--deep);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 70px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.35);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 44px; height: 44px;
+    }
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--thread);
+      letter-spacing: 0.06em;
+      line-height: 1.1;
+    }
+    .logo-text span {
+      display: block;
+      font-size: 0.65rem;
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      letter-spacing: 0.22em;
+      color: var(--rose);
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--thread); }
+
+    /* ──────────────── HERO ──────────────── */
+    .hero {
+      min-height: 92vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 60px 80px;
+      background:
+        radial-gradient(ellipse at 80% 20%, rgba(200,146,42,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 10% 80%, rgba(139,79,110,0.12) 0%, transparent 55%),
+        var(--cream);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,146,42,0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Decorative thread lines */
+    .thread-deco {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      opacity: 0.08;
+    }
+
+    .hero-text { position: relative; z-index: 2; }
+    .hero-badge {
+      display: inline-block;
+      background: var(--mauve);
+      color: #fff;
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 50px;
+      margin-bottom: 22px;
+      font-weight: 700;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.6rem, 5vw, 4.2rem);
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: var(--deep);
+    }
+    .hero h1 em {
+      color: var(--gold);
+      font-style: italic;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: #6b4c33;
+      line-height: 1.75;
+      max-width: 460px;
+      margin-bottom: 36px;
+      font-weight: 300;
+    }
+
+    .cta-group { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn {
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+      display: inline-block;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(200,146,42,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(200,146,42,0.45); }
+    .btn-outline {
+      background: transparent;
+      color: var(--deep);
+      border: 2px solid var(--deep);
+    }
+    .btn-outline:hover { background: var(--deep); color: var(--cream); transform: translateY(-2px); }
+
+    /* ── SEWING SCENE SVG ── */
+    .hero-illustration {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .scene-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+    }
+    .scene-bg {
+      position: absolute;
+      inset: -30px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,146,42,0.13) 0%, transparent 70%);
+    }
+
+    /* Floating tags */
+    .tag {
+      position: absolute;
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--deep);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: float 3.5s ease-in-out infinite;
+    }
+    .tag-1 { top: 10%;  right: -5%; animation-delay: 0s; }
+    .tag-2 { bottom: 20%; left: -8%; animation-delay: 1.2s; }
+    .tag-3 { top: 52%;  right: -6%; animation-delay: 0.6s; }
+    .tag .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-gold  { background: var(--gold); }
+    .dot-mauve { background: var(--mauve); }
+    .dot-rose  { background: var(--rose); }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    /* ──────────────── SERVICES ──────────────── */
+    #servicios {
+      padding: 90px 60px;
+      background: var(--deep);
+      position: relative;
+      overflow: hidden;
+    }
+    #servicios::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: -100px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: rgba(200,146,42,0.07);
+      pointer-events: none;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .section-header .eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--thread);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--cream);
+      line-height: 1.2;
+    }
+    .section-header h2 em { color: var(--thread); font-style: italic; }
+    .section-header p {
+      margin-top: 14px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 300;
+      font-size: 1rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .service-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,146,42,0.18);
+      border-radius: 18px;
+      padding: 36px 28px;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .service-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--mauve));
+      transform: scaleX(0);
+      transition: transform 0.3s;
+      transform-origin: left;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(200,146,42,0.5);
+      background: rgba(200,146,42,0.06);
+    }
+    .service-card:hover::after { transform: scaleX(1); }
+
+    .service-icon {
+      width: 62px; height: 62px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(200,146,42,0.12);
+      border-radius: 16px;
+      border: 1px solid rgba(200,146,42,0.25);
+    }
+    .service-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--cream);
+      margin-bottom: 10px;
+    }
+    .service-card p {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+    .service-price {
+      display: inline-block;
+      margin-top: 18px;
+      background: rgba(200,146,42,0.15);
+      color: var(--thread);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 5px 14px;
+      border-radius: 50px;
+    }
+
+    /* ──────────────── CONTACT ──────────────── */
+    #contacto {
+      padding: 90px 60px;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .contact-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 60px;
+      width: min(680px, 94vw);
+      box-shadow: 0 20px 60px rgba(44,26,14,0.1);
+      border: 1px solid rgba(200,146,42,0.15);
+    }
+    .contact-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--deep);
+      margin-bottom: 8px;
+    }
+    .contact-card > p {
+      color: #8a7060;
+      font-size: 0.95rem;
+      margin-bottom: 36px;
+      font-weight: 300;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 7px;
+    }
+    input, textarea, select {
+      width: 100%;
+      background: #fdf6ee;
+      border: 1.5px solid rgba(200,146,42,0.25);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: var(--deep);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,146,42,0.12);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 110px; }
+    select option { background: #fff; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      margin-top: 8px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--gold), var(--mauve));
+      color: #fff;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px rgba(200,146,42,0.3);
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(200,146,42,0.45);
+    }
+
+    /* ──────────────── FOOTER ──────────────── */
+    footer {
+      background: var(--deep);
+      color: rgba(255,255,255,0.35);
+      text-align: center;
+      padding: 28px 20px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+    }
+    footer strong { color: var(--thread); }
+
+    /* ──────────────── RESPONSIVE ──────────────── */
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; padding: 50px 28px; text-align: center; }
+      .hero p { margin-left: auto; margin-right: auto; }
+      .cta-group { justify-content: center; }
+      .hero-illustration { margin-top: 40px; }
+      .tag-1, .tag-2, .tag-3 { display: none; }
+      #servicios, #contacto { padding: 60px 24px; }
+      .contact-card { padding: 36px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      nav { padding: 0 20px; }
+      .nav-links { gap: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="logo">
+    <!-- Sewing machine mini logo -->
+    <svg class="logo-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="44" height="44" rx="10" fill="#c8922a" fill-opacity="0.15"/>
+      <!-- Machine body -->
+      <rect x="8" y="16" width="22" height="14" rx="3" fill="#c8922a"/>
+      <!-- Arm -->
+      <rect x="22" y="10" width="8" height="7" rx="2" fill="#d4a853"/>
+      <!-- Needle bar -->
+      <rect x="27" y="17" width="2" height="9" rx="1" fill="#fdf6ee"/>
+      <!-- Needle -->
+      <rect x="27.5" y="26" width="1" height="5" rx="0.5" fill="#fdf6ee"/>
+      <!-- Wheel -->
+      <circle cx="28" cy="20" r="4" fill="#2c1a0e" stroke="#d4a853" stroke-width="1.5"/>
+      <circle cx="28" cy="20" r="1.5" fill="#d4a853"/>
+      <!-- Base -->
+      <rect x="6" y="30" width="28" height="3" rx="1.5" fill="#8b4f6e"/>
+      <!-- Thread spool -->
+      <rect x="10" y="12" width="5" height="7" rx="2" fill="#e8a0b4"/>
+      <line x1="14" y1="12" x2="14" y2="19" stroke="#d4a853" stroke-width="0.8"/>
+    </svg>
+    <div class="logo-text">
+      Costura &amp; Creaciones
+      <span>taller artesanal</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+    <li><a href="#contacto" style="color:var(--thread)">Cotizar</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+
+  <!-- Decorative threads SVG -->
+  <svg class="thread-deco" viewBox="0 0 1200 700" preserveAspectRatio="none">
+    <path d="M0 200 Q300 100 600 300 T1200 200" stroke="#c8922a" stroke-width="1.5" fill="none"/>
+    <path d="M0 400 Q400 250 800 450 T1200 380" stroke="#8b4f6e" stroke-width="1" fill="none"/>
+    <path d="M0 600 Q200 500 500 580 T1200 540" stroke="#c8922a" stroke-width="0.8" fill="none"/>
+  </svg>
+
+  <div class="hero-text">
+    <div class="hero-badge">Taller Profesional de Costura</div>
+    <h1>Tu ropa, <em>perfectamente</em><br>a tu medida</h1>
+    <p>Confección artesanal, arreglos y diseños únicos hechos con pasión y precisión. Cada puntada cuenta una historia.</p>
+    <div class="cta-group">
+      <a href="#servicios" class="btn btn-primary">Ver Servicios</a>
+      <a href="#contacto" class="btn btn-outline">Pedir Cotización</a>
+    </div>
+  </div>
+
+  <div class="hero-illustration">
+    <div class="scene-wrap">
+      <div class="scene-bg"></div>
+
+      <!-- Floating tags -->
+      <div class="tag tag-1"><div class="dot dot-gold"></div>Alta Costura</div>
+      <div class="tag tag-2"><div class="dot dot-mauve"></div>Arreglos Express</div>
+      <div class="tag tag-3"><div class="dot dot-rose"></div>Diseño Único</div>
+
+      <!-- Main illustration: Person at sewing machine -->
+      <svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+
+        <!-- Background circle -->
+        <circle cx="240" cy="260" r="190" fill="rgba(200,146,42,0.07)" />
+
+        <!-- ── TABLE ── -->
+        <rect x="60" y="340" width="360" height="16" rx="4" fill="#8b6240"/>
+        <rect x="80" y="356" width="12" height="70" rx="4" fill="#6e4f2e"/>
+        <rect x="388" y="356" width="12" height="70" rx="4" fill="#6e4f2e"/>
+        <!-- table surface shine -->
+        <rect x="60" y="340" width="360" height="4" rx="2" fill="rgba(255,255,255,0.12)"/>
+
+        <!-- ── SEWING MACHINE ── -->
+        <!-- Base plate -->
+        <rect x="160" y="300" width="180" height="20" rx="5" fill="#6b7280"/>
+        <rect x="160" y="300" width="180" height="6" rx="3" fill="#9ca3af"/>
+
+        <!-- Machine body -->
+        <rect x="170" y="220" width="160" height="82" rx="12" fill="#374151"/>
+        <!-- body highlight -->
+        <rect x="170" y="220" width="160" height="12" rx="8" fill="#4b5563"/>
+
+        <!-- Arm/head -->
+        <rect x="240" y="180" width="80" height="48" rx="10" fill="#374151"/>
+        <rect x="240" y="180" width="80" height="10" rx="6" fill="#4b5563"/>
+
+        <!-- Needle bar -->
+        <rect x="296" y="225" width="8" height="52" rx="3" fill="#9ca3af"/>
+        <!-- Needle -->
+        <rect x="298" y="277" width="4" height="22" rx="1.5" fill="#d1d5db"/>
+        <!-- Needle eye -->
+        <circle cx="300" cy="293" r="2" fill="#374151"/>
+
+        <!-- Presser foot -->
+        <rect x="290" y="298" width="20" height="6" rx="2" fill="#6b7280"/>
+
+        <!-- Handwheel -->
+        <circle cx="328" cy="232" r="22" fill="#1f2937" stroke="#6b7280" stroke-width="3"/>
+        <circle cx="328" cy="232" r="14" fill="#374151"/>
+        <line x1="328" y1="214" x2="328" y2="250" stroke="#6b7280" stroke-width="2"/>
+        <line x1="310" y1="232" x2="346" y2="232" stroke="#6b7280" stroke-width="2"/>
+        <circle cx="328" cy="232" r="5" fill="#c8922a"/>
+
+        <!-- Thread spool on top -->
+        <rect x="250" y="160" width="22" height="30" rx="6" fill="#e8a0b4"/>
+        <rect x="248" y="165" width="26" height="5" rx="2" fill="#c8785a"/>
+        <rect x="248" y="180" width="26" height="5" rx="2" fill="#c8785a"/>
+        <!-- spool thread line to needle -->
+        <path d="M261 190 Q270 200 280 210 Q290 220 298 230" stroke="#d4a853" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/>
+
+        <!-- Fabric under needle -->
+        <path d="M130 304 Q200 294 295 302 Q340 306 400 300" stroke="none" fill="#f0d5b4"/>
+        <rect x="130" y="302" width="270" height="12" rx="4" fill="#e8c99a"/>
+        <!-- fabric pattern -->
+        <line x1="160" y1="302" x2="160" y2="314" stroke="rgba(200,146,42,0.4)" stroke-width="1"/>
+        <line x1="200" y1="302" x2="200" y2="314" stroke="rgba(200,146,42,0.4)" stroke-width="1"/>
+        <line x1="240" y1="302" x2="240" y2="314" stroke="rgba(200,146,42,0.4)" stroke-width="1"/>
+        <line x1="280" y1="302" x2="280" y2="314" stroke="rgba(200,146,42,0.4)" stroke-width="1"/>
+        <line x1="320" y1="302" x2="320" y2="314" stroke="rgba(200,146,42,0.4)" stroke-width="1"/>
+        <line x1="360" y1="302" x2="360" y2="314" stroke="rgba(200,146,42,0.4)" stroke-width="1"/>
+
+        <!-- ── PERSON ── -->
+        <!-- Chair -->
+        <rect x="80" y="320" width="80" height="12" rx="4" fill="#6e4f2e"/>
+        <rect x="88" y="332" width="10" height="40" rx="3" fill="#5c3f22"/>
+        <rect x="142" y="332" width="10" height="40" rx="3" fill="#5c3f22"/>
+
+        <!-- Body / Torso -->
+        <path d="M88 260 Q90 220 120 215 Q140 212 148 220 Q160 214 170 220 Q190 215 192 255 Q194 280 190 300 Q175 310 140 312 Q105 310 90 300 Z" fill="#8b4f6e"/>
+        <!-- shirt detail -->
+        <path d="M120 215 Q130 240 140 245 Q150 240 160 215" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" fill="none"/>
+
+        <!-- Neck -->
+        <rect x="128" y="205" width="24" height="18" rx="6" fill="#d4956a"/>
+
+        <!-- Head -->
+        <ellipse cx="140" cy="185" rx="30" ry="34" fill="#d4956a"/>
+        <!-- hair -->
+        <path d="M110 178 Q112 148 140 145 Q168 148 170 178 Q168 155 140 152 Q112 155 110 178 Z" fill="#3d2314"/>
+        <!-- hair bun / ponytail -->
+        <path d="M166 170 Q178 160 182 172 Q180 182 170 180 Z" fill="#3d2314"/>
+        <!-- ear -->
+        <ellipse cx="110" cy="187" rx="5" ry="7" fill="#c4855a"/>
+        <!-- face: eyes -->
+        <ellipse cx="130" cy="185" rx="4" ry="5" fill="white"/>
+        <ellipse cx="152" cy="185" rx="4" ry="5" fill="white"/>
+        <circle cx="131" cy="186" r="2.5" fill="#3d2314"/>
+        <circle cx="153" cy="186" r="2.5" fill="#3d2314"/>
+        <circle cx="132" cy="185" r="1" fill="white"/>
+        <circle cx="154" cy="185" r="1" fill="white"/>
+        <!-- eyebrows -->
+        <path d="M125 179 Q130 176 135 179" stroke="#3d2314" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M147 179 Q152 176 157 179" stroke="#3d2314" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <!-- smile -->
+        <path d="M132 197 Q140 204 148 197" stroke="#c4855a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- blush -->
+        <ellipse cx="122" cy="194" rx="7" ry="4" fill="rgba(232,160,180,0.45)"/>
+        <ellipse cx="158" cy="194" rx="7" ry="4" fill="rgba(232,160,180,0.45)"/>
+
+        <!-- Left arm -->
+        <path d="M92 250 Q70 260 72 290 Q74 305 88 310" stroke="#8b4f6e" stroke-width="22" fill="none" stroke-linecap="round"/>
+        <!-- Left hand -->
+        <ellipse cx="82" cy="308" rx="12" ry="9" fill="#d4956a" transform="rotate(-10,82,308)"/>
+
+        <!-- Right arm (reaching to machine) -->
+        <path d="M186 250 Q200 255 210 270 Q220 285 230 295" stroke="#8b4f6e" stroke-width="20" fill="none" stroke-linecap="round"/>
+        <!-- Right hand on fabric -->
+        <ellipse cx="238" cy="300" rx="14" ry="9" fill="#d4956a" transform="rotate(-15,238,300)"/>
+
+        <!-- Lap / legs -->
+        <path d="M95 310 Q100 330 95 360 Q100 370 110 368 Q118 365 118 355 Q116 335 120 318" fill="#6b4c8a"/>
+        <path d="M165 315 Q170 335 172 360 Q170 370 162 370 Q154 368 152 356 Q154 336 152 320" fill="#6b4c8a"/>
+        <!-- shoes -->
+        <ellipse cx="103" cy="367" rx="16" ry="7" fill="#3d2314"/>
+        <ellipse cx="162" cy="369" rx="16" ry="7" fill="#3d2314"/>
+
+        <!-- Glasses on nose bridge -->
+        <circle cx="130" cy="185" r="7" fill="none" stroke="#c8922a" stroke-width="1.5"/>
+        <circle cx="152" cy="185" r="7" fill="none" stroke="#c8922a" stroke-width="1.5"/>
+        <line x1="137" y1="185" x2="145" y2="185" stroke="#c8922a" stroke-width="1.2"/>
+        <line x1="123" y1="183" x2="118" y2="181" stroke="#c8922a" stroke-width="1.2"/>
+        <line x1="159" y1="183" x2="164" y2="181" stroke="#c8922a" stroke-width="1.2"/>
+
+        <!-- Thread coming off fabric -->
+        <path d="M130 314 Q120 350 100 370" stroke="#c8922a" stroke-width="1.2" fill="none" stroke-dasharray="4 2"/>
+
+        <!-- Scissors on table -->
+        <g transform="translate(370, 310) rotate(-30)">
+          <ellipse cx="0" cy="-12" rx="5" ry="3" fill="none" stroke="#9ca3af" stroke-width="1.5"/>
+          <ellipse cx="0" cy="12" rx="5" ry="3" fill="none" stroke="#9ca3af" stroke-width="1.5"/>
+          <line x1="-3" y1="-9" x2="3" y2="9" stroke="#9ca3af" stroke-width="2"/>
+          <line x1="3" y1="-9" x2="-3" y2="9" stroke="#9ca3af" stroke-width="2"/>
+          <circle cx="0" cy="0" r="3" fill="#9ca3af"/>
+        </g>
+
+        <!-- Pin cushion -->
+        <ellipse cx="420" cy="312" rx="18" ry="12" fill="#e8a0b4"/>
+        <ellipse cx="420" cy="308" rx="18" ry="12" fill="#f9c9d8"/>
+        <line x1="414" y1="296" x2="416" y2="308" stroke="#9ca3af" stroke-width="1.5"/>
+        <circle cx="414" cy="295" r="2" fill="#c8922a"/>
+        <line x1="422" y1="293" x2="421" y2="308" stroke="#9ca3af" stroke-width="1.5"/>
+        <circle cx="422" cy="292" r="2" fill="#8b4f6e"/>
+        <line x1="430" y1="297" x2="426" y2="308" stroke="#9ca3af" stroke-width="1.5"/>
+        <circle cx="431" cy="296" r="2" fill="#d4a853"/>
+
+      </svg>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── SERVICES ── -->
+<section id="servicios">
+  <div class="section-header">
+    <div class="eyebrow">Lo que ofrezco</div>
+    <h2>Mis <em>Servicios</em></h2>
+    <p>Elige la opción que mejor se adapte a lo que necesitas.</p>
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <path d="M16 4 L20 12 L28 13 L22 19 L23.5 28 L16 24 L8.5 28 L10 19 L4 13 L12 12 Z" fill="#c8922a" opacity="0.9"/>
+        </svg>
+      </div>
+      <h3>Confección a Medida</h3>
+      <p>Prendas únicas diseñadas y cosidas especialmente para ti, con las telas y estilos que elijas.</p>
+      <span class="service-price">Desde $300 MXN</span>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="6" y="8" width="20" height="16" rx="3" fill="none" stroke="#c8922a" stroke-width="2"/>
+          <path d="M10 14 L16 20 L22 14" stroke="#c8922a" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <line x1="16" y1="8" x2="16" y2="20" stroke="#c8922a" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>Arreglos y Ajustes</h3>
+      <p>Acortado de pantalones, ajuste de tallas, cambio de cremalleras y reparaciones en general.</p>
+      <span class="service-price">Desde $80 MXN</span>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="14" r="8" fill="none" stroke="#c8922a" stroke-width="2"/>
+          <path d="M10 22 L6 28 M22 22 L26 28" stroke="#c8922a" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 14 L15 17 L20 11" stroke="#c8922a" stroke-width="2" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <h3>Ropa de Novia &amp; Fiesta</h3>
+      <p>Vestidos de novia, quinceañera, graduación y eventos especiales con acabados de lujo.</p>
+      <span class="service-price">Desde $1,200 MXN</span>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="8" y="6" width="16" height="20" rx="2" fill="none" stroke="#c8922a" stroke-width="2"/>
+          <line x1="12" y1="12" x2="20" y2="12" stroke="#c8922a" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="16" x2="20" y2="16" stroke="#c8922a" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="12" y1="20" x2="17" y2="20" stroke="#c8922a" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>Uniformes y Corporativos</h3>
+      <p>Producción de uniformes para empresas, restaurantes, escuelas y equipos de trabajo.</p>
+      <span class="service-price">Precio por lote</span>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <path d="M8 24 Q16 6 24 24" fill="none" stroke="#c8922a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="11" y1="18" x2="21" y2="18" stroke="#c8922a" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="16" cy="27" r="3" fill="#c8922a" opacity="0.7"/>
+        </svg>
+      </div>
+      <h3>Bordados Personalizados</h3>
+      <p>Bordados a mano y máquina: nombres, logos, iniciales y diseños artísticos en cualquier prenda.</p>
+      <span class="service-price">Desde $120 MXN</span>
+    </div>
+
+    <div class="service-card">
+      <div class="service-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="6" y="10" width="20" height="14" rx="3" fill="none" stroke="#c8922a" stroke-width="2"/>
+          <path d="M10 10 L10 7 Q16 4 22 7 L22 10" fill="none" stroke="#c8922a" stroke-width="2"/>
+          <circle cx="16" cy="17" r="3" fill="#c8922a" opacity="0.7"/>
+        </svg>
+      </div>
+      <h3>Ropa Infantil</h3>
+      <p>Prendas para bebés y niños hechas con telas suaves, hipoalergénicas y diseños adorables.</p>
+      <span class="service-price">Desde $150 MXN</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section id="contacto">
+  <div class="section-header" style="margin-bottom:48px;">
+    <div class="eyebrow" style="color:var(--gold)">Hablemos</div>
+    <h2 style="color:var(--deep)">Pide tu <em>Cotización</em></h2>
+    <p style="color:#8a7060">Cuéntame qué necesitas y te respondo en menos de 24 horas.</p>
+  </div>
+
+  <div class="contact-card">
+    <h2>Formulario de Contacto</h2>
+    <p>Todos los campos marcados son necesarios para darte una respuesta precisa.</p>
+
+    <form onsubmit="handleSubmit(event)">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" placeholder="Tu nombre" required />
+        </div>
+        <div class="form-group">
+          <label for="apellido">Apellido</label>
+          <input type="text" id="apellido" placeholder="Tu apellido" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <input type="email" id="email" placeholder="tu@correo.com" required />
+      </div>
+
+      <div class="form-group">
+        <label for="telefono">Teléfono / WhatsApp</label>
+        <input type="tel" id="telefono" placeholder="+52 555 000 0000" />
+      </div>
+
+      <div class="form-group">
+        <label for="servicio">Servicio que te interesa</label>
+        <select id="servicio" required>
+          <option value="">Selecciona un servicio...</option>
+          <option>Confección a Medida</option>
+          <option>Arreglos y Ajustes</option>
+          <option>Ropa de Novia &amp; Fiesta</option>
+          <option>Uniformes y Corporativos</option>
+          <option>Bordados Personalizados</option>
+          <option>Ropa Infantil</option>
+          <option>Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="mensaje">¿Qué necesitas?</label>
+        <textarea id="mensaje" placeholder="Describe tu prenda, talla, tela, fecha de entrega..."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">Enviar Solicitud</button>
+    </form>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  Hecho con aguja e hilo &nbsp;·&nbsp; <strong>Costura &amp; Creaciones</strong> &nbsp;·&nbsp; 2026
+</footer>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.submit-btn');
+    btn.textContent = '¡Mensaje Enviado! Te contactaremos pronto.';
+    btn.style.background = 'linear-gradient(135deg, #2d7a4f, #3a9e68)';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = 'Enviar Solicitud';
+      btn.style.background = '';
+      btn.disabled = false;
+      e.target.reset();
+    }, 4000);
+  }
+</script>
+</body>
+</html>
