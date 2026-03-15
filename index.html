@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alidzy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Exo+2:wght@700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0f;
+      color: #fff;
+      font-family: 'Exo 2', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── STAR FIELD ── */
+    #stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── SCROLLING BANNER ── */
+    .ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+      background: linear-gradient(90deg, #0d0d1a 0%, #1a0a2e 50%, #0d0d1a 100%);
+      border-top: 2px solid #a020f0;
+      border-bottom: 2px solid #a020f0;
+      padding: 18px 0;
+      position: relative;
+      z-index: 10;
+    }
+    .ticker-wrap::before,
+    .ticker-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 120px;
+      z-index: 11;
+    }
+    .ticker-wrap::before { left: 0;  background: linear-gradient(90deg, #0d0d1a, transparent); }
+    .ticker-wrap::after  { right: 0; background: linear-gradient(-90deg, #0d0d1a, transparent); }
+
+    .ticker {
+      display: flex;
+      white-space: nowrap;
+      animation: scroll 14s linear infinite;
+    }
+    .ticker-item {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: 0.25em;
+      padding: 0 80px;
+      background: linear-gradient(90deg,
+        #ff0080, #ff4500, #ffd700, #00ff88, #00bfff, #a020f0, #ff0080);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+      text-shadow: none;
+      filter: drop-shadow(0 0 12px #a020f0aa);
+    }
+
+    @keyframes scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* ── MAIN CONTENT ── */
+    main {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 80px;
+    }
+
+    /* ── RAINBOW ── */
+    .rainbow-scene {
+      position: relative;
+      width: min(640px, 90vw);
+      height: 320px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .rainbow-arc {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+      animation: pulse-glow 3s ease-in-out infinite alternate;
+    }
+
+    .arc-1 { width: 640px; height: 320px; background: radial-gradient(ellipse at bottom, transparent 55%, #ff0000 55%, #ff0000 62%, transparent 62%); }
+    .arc-2 { width: 580px; height: 290px; background: radial-gradient(ellipse at bottom, transparent 55%, #ff6600 55%, #ff6600 62%, transparent 62%); }
+    .arc-3 { width: 520px; height: 260px; background: radial-gradient(ellipse at bottom, transparent 55%, #ffd700 55%, #ffd700 62%, transparent 62%); }
+    .arc-4 { width: 460px; height: 230px; background: radial-gradient(ellipse at bottom, transparent 55%, #00cc44 55%, #00cc44 62%, transparent 62%); }
+    .arc-5 { width: 400px; height: 200px; background: radial-gradient(ellipse at bottom, transparent 55%, #0099ff 55%, #0099ff 62%, transparent 62%); }
+    .arc-6 { width: 340px; height: 170px; background: radial-gradient(ellipse at bottom, transparent 55%, #4b0082 55%, #4b0082 62%, transparent 62%); }
+    .arc-7 { width: 280px; height: 140px; background: radial-gradient(ellipse at bottom, transparent 55%, #9400d3 55%, #9400d3 62%, transparent 62%); }
+
+    /* Ground glow */
+    .rainbow-scene::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 24px;
+      background: radial-gradient(ellipse, rgba(148,0,211,0.6) 0%, transparent 70%);
+      filter: blur(6px);
+    }
+
+    @keyframes pulse-glow {
+      from { filter: brightness(1) saturate(1.2); }
+      to   { filter: brightness(1.25) saturate(1.8) drop-shadow(0 0 18px rgba(255,100,255,0.5)); }
+    }
+
+    /* Clouds */
+    .cloud {
+      position: absolute;
+      bottom: 0;
+      border-radius: 50px;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 30px rgba(255,255,255,0.15);
+    }
+    .cloud-left  { width: 130px; height: 50px; left:  -10px; }
+    .cloud-right { width: 130px; height: 50px; right: -10px; }
+    .cloud-left::before, .cloud-right::before {
+      content: '';
+      position: absolute;
+      top: -25px;
+      width: 75px; height: 55px;
+      border-radius: 50%;
+      background: inherit;
+    }
+    .cloud-left::before  { left: 15px; }
+    .cloud-right::before { right: 15px; }
+
+    /* ── TAGLINE ── */
+    .tagline {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.1rem, 3vw, 1.7rem);
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 0.08em;
+      line-height: 1.5;
+      max-width: 700px;
+      margin-bottom: 60px;
+      background: linear-gradient(135deg, #ffd700, #ff8c00, #ff0080, #a020f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 14px rgba(255,215,0,0.4));
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    /* ── FORM CARD ── */
+    .card {
+      background: linear-gradient(145deg, rgba(20,10,40,0.95), rgba(10,5,25,0.98));
+      border: 1px solid rgba(160,32,240,0.4);
+      border-radius: 20px;
+      padding: 50px 50px 50px;
+      width: min(620px, 92vw);
+      box-shadow:
+        0 0 40px rgba(160,32,240,0.2),
+        0 0 80px rgba(160,32,240,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #ff0080, #ffd700, #00ff88, #00bfff, #a020f0, #ff0080);
+      background-size: 400%;
+      z-index: -1;
+      animation: border-spin 6s linear infinite;
+      opacity: 0.5;
+    }
+    @keyframes border-spin {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 400% 50%; }
+    }
+
+    .card h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.15em;
+      margin-bottom: 32px;
+      text-align: center;
+      background: linear-gradient(90deg, #a020f0, #00bfff, #a020f0);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    label {
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #a020f0;
+      font-weight: 700;
+    }
+    input, textarea, select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(160,32,240,0.35);
+      border-radius: 10px;
+      padding: 13px 16px;
+      color: #e8e0ff;
+      font-family: 'Exo 2', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #a020f0;
+      background: rgba(160,32,240,0.08);
+      box-shadow: 0 0 0 3px rgba(160,32,240,0.2), 0 0 20px rgba(160,32,240,0.15);
+    }
+    textarea { resize: vertical; min-height: 110px; }
+    select option { background: #1a0a2e; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #a020f0, #ff0080, #ffd700, #00ff88, #00bfff, #a020f0);
+      background-size: 300%;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      animation: shimmer 4s linear infinite;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 30px rgba(160,32,240,0.5), 0 0 60px rgba(255,0,128,0.3);
+    }
+    .submit-btn:active { transform: translateY(0) scale(0.99); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 20px;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.2);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Stars canvas -->
+<canvas id="stars"></canvas>
+
+<!-- Scrolling banner -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <!-- doubled for seamless loop -->
+    <span class="ticker-item">ALIDZY</span>
+    <span class="ticker-item">★</span>
+    <span class="ticker-item">ALIDZY</span>
+    <span class="ticker-item">★</span>
+    <span class="ticker-item">ALIDZY</span>
+    <span class="ticker-item">★</span>
+    <span class="ticker-item">ALIDZY</span>
+    <span class="ticker-item">★</span>
+    <span class="ticker-item">ALIDZY</span>
+    <span class="ticker-item">★</span>
+    <span class="ticker-item">ALIDZY</span>
+    <span class="ticker-item">★</span>
+    <span class="ticker-item">ALIDZY</span>
+    <span class="ticker-item">★</span>
+    <span class="ticker-item">ALIDZY</span>
+    <span class="ticker-item">★</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- Rainbow -->
+  <div class="rainbow-scene">
+    <div class="rainbow-arc arc-1"></div>
+    <div class="rainbow-arc arc-2"></div>
+    <div class="rainbow-arc arc-3"></div>
+    <div class="rainbow-arc arc-4"></div>
+    <div class="rainbow-arc arc-5"></div>
+    <div class="rainbow-arc arc-6"></div>
+    <div class="rainbow-arc arc-7"></div>
+    <div class="cloud cloud-left"></div>
+    <div class="cloud cloud-right"></div>
+  </div>
+
+  <!-- Tagline -->
+  <p class="tagline">
+    The most awesome people<br>will put their information below.
+  </p>
+
+  <!-- Form -->
+  <div class="card">
+    <h2>Join the Awesome</h2>
+    <form onsubmit="handleSubmit(event)">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fname">First Name</label>
+          <input type="text" id="fname" name="fname" placeholder="Your first name" required />
+        </div>
+        <div class="form-group">
+          <label for="lname">Last Name</label>
+          <input type="text" id="lname" name="lname" placeholder="Your last name" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required />
+      </div>
+
+      <div class="form-group">
+        <label for="username">Username / Handle</label>
+        <input type="text" id="username" name="username" placeholder="@your_handle" />
+      </div>
+
+      <div class="form-group">
+        <label for="level">Awesomeness Level</label>
+        <select id="level" name="level">
+          <option value="">Select your level...</option>
+          <option value="pretty_cool">Pretty Cool</option>
+          <option value="awesome">Awesome</option>
+          <option value="legendary">Legendary</option>
+          <option value="alidzy_tier">Alidzy Tier (MAX)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="bio">Why are you awesome?</label>
+        <textarea id="bio" name="bio" placeholder="Tell the world what makes you legendary..."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">SUBMIT YOUR AWESOMENESS</button>
+    </form>
+  </div>
+
+</main>
+
+<footer>Made with cosmic energy &nbsp;·&nbsp; Alidzy &copy; 2026</footer>
+
+<script>
+  /* ── STARFIELD ── */
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (let i = 0; i < 220; i++) {
+    stars.push({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 1.5 + 0.3,
+      a: Math.random(),
+      speed: Math.random() * 0.006 + 0.002
+    });
+  }
+
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.a += s.speed;
+      const alpha = (Math.sin(s.a) + 1) / 2;
+      ctx.beginPath();
+      ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha * 0.9})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+  drawStars();
+
+  /* ── FORM SUBMIT ── */
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.submit-btn');
+    btn.textContent = '🌈 AWESOMENESS RECORDED!';
+    btn.style.background = 'linear-gradient(90deg,#00ff88,#00bfff,#a020f0)';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = 'SUBMIT YOUR AWESOMENESS';
+      btn.style.background = '';
+      btn.disabled = false;
+      e.target.reset();
+    }, 3000);
+  }
+</script>
+</body>
+</html>
